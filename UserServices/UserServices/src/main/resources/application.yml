@@ -1,0 +1,92 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: UserServices
+  datasource:
+    password: root
+    url: jdbc:mysql://localhost:3306/microservices
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+#  config:
+#    import: configserver:http://localhost:8087
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    web:
+      exposure:
+        include: health
+  endpoints:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitBreaker:
+    instances:
+      RatingHotelBreaker:  # Specific configuration for the "RatingHotelBreaker" circuit breaker
+        # Registers a health indicator for this breaker in Spring Boot's health endpoints
+        registerHealthIndicator: true
+        # Number of events that can be buffered for processing (e.g., for metrics or monitoring)
+        eventConsumerBufferSize: 10
+        # Failure rate threshold (in percentage) to trip the circuit breaker
+        failureRateThreshold: 50
+        # Minimum number of calls required before tripping the breaker
+        minimumNumberOfCalls: 5
+        # Automatically transitions the breaker from OPEN to HALF_OPEN state after a wait duration
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        # Duration to wait in OPEN state before transitioning to HALF_OPEN
+        waitDurationInOpenState: 6s
+        # Number of permitted calls in HALF_OPEN state before fully reclosing
+        permittedNumberOfCallsInHalfOpenState: 3
+        # Size of the sliding window used for failure rate calculation
+        slidingWindowSize: 10
+        # Type of sliding window: COUNT_BASED (counts calls) or TIME_BASED (duration-based)
+        slidingWindowType: COUNT_BASED
+
+#  rateLimiter:
+#    instances:
+#      apiGateway:      # specific config for "apiGateway" limiter
+#        rate: 1000      # requests per second allowed
+#        limitRefreshPeriod: 10s
+
+
+
+#server:
+#  port: 8081
+#
+#    spring:
+#      datasource:
+#        url: jdbc:mysql://localhost:3306/microservices
+#        username: root
+#        password: root
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#    jpa:
+#      hibernate:
+#        ddl-auto: update
+#      show-sql: true
+#      properties:
+#         hibernate:
+#           dialect: org.hibernate.dialect.MySQL8Dialect
+
+
